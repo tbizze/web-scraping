@@ -14,6 +14,12 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::get('/', function () {
+    // Para fins de teste, se ambiente local => faz login automático como usuário com ID 1.
+    if (app()->isLocal()) {
+        auth()->loginUsingId(1);
+        return to_route('dashboard');
+    }
+    // Se for ambiente production, segue normal e não faz login automático.
     return view('welcome');
 });
 
