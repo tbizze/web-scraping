@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ImageController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -32,3 +33,8 @@ Route::middleware([
         return view('dashboard');
     })->name('dashboard');
 });
+
+Route::get('/image', [ImageController::class, 'index'])->name('image.index');
+Route::post('/image/upload', [ImageController::class, 'upload'])->name('image.upload');
+
+Route::get('/notices', [ImageController::class, 'notices'])->name('image.notices');
