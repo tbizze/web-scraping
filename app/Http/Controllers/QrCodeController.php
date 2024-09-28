@@ -2,18 +2,20 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\QrCodeExport;
 use App\Models\QrCode;
 use App\Services\ConvertService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
+use Maatwebsite\Excel\Facades\Excel;
 
 class QrCodeController extends Controller
 {
     // Método para listar os QR Codes salvos no BD.
     public function index()
     {
-        $qr_codes = QrCode::all();
+        $qr_codes = QrCode::paginate(30);
         return view('scraping.index', compact('qr_codes'));
     }
 
@@ -59,9 +61,21 @@ class QrCodeController extends Controller
             $id++;
         }
 
+        $x = 0;
         // Salvar os QR Codes no banco de dados
         foreach ($items as $item) {
-            QrCode::create($item);
+            $test = QrCode::query()
+                ->where('grupo', '=', $item['grupo'])
+                ->where('carne', '=', $item['carne'])
+                ->get();
+
+            // Verifica se já existe um registro com os mesmos dados.
+            if ($test->isEmpty()) {
+                $x++;
+                //QrCode::create($item);
+            }
+
+            //QrCode::create($item);
         }
 
         // Retornar a quantidade de QR Codes salvos e uma mensagem de sucesso.
@@ -161,43 +175,8 @@ class QrCodeController extends Controller
     }
 
 
-    public function testJob(ConvertService $convertService): void
+    public function export()
     {
-        // Busca o registro com dados da imagem.
-        $qrCodes = QrCode::query()
-            ->where('status', '=', 0)
-            ->limit(2)
-            ->get();
-
-        // Para cada item, realiza a requisição para converter JPG em TXT.
-        foreach ($qrCodes as $item) {
-
-            // Registra um log
-            Log::info('>>> Start automatic convert: ' . $item->id . ' | ' . $item->grupo . '/' . $item->carne);
-
-            // Chama o serviço que gerencia requisições ao site de conversão de JPG para TXT.
-            // Passa como parâmetro o ID.
-            $convert = $convertService->allConvert($item->id);
-
-            //dd($convert);
-
-
-            // Se retornou erro.
-            if (isset($convert) && is_array($convert) && array_key_exists('error', $convert)) {
-
-                // Grava LOG.
-                Log::error('ERROR CONVERT: ' . $convert['error'] . '. ' . $convert['message']);
-
-                // Se não retornou transações.
-            } elseif (isset($convert) && is_array($convert) && array_key_exists('info', $convert)) {
-
-                // Grava LOG.
-                Log::info('FAIL CONVERT: ' . $convert['info'] . '. ' . $convert['message']);
-            } else {
-
-                // Se retornado transações. Registra um log.
-                Log::info('SUCCESS CONVERT: ' . $convert['success'] . '. ' . $convert['message']);
-            }
-        }
+        return Excel::download(new QrCodeExport, 'qr-codes.xlsx');
     }
 }
