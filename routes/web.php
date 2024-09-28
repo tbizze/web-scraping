@@ -39,7 +39,7 @@ Route::get('/ocr', [QrCodeController::class, 'index'])->name('ocr.index');
 Route::get('/lsqrcode', [QrCodeController::class, 'scanQrReceipts'])->name('ocr.lsqrcode');
 Route::get('/convert/{id}', [QrCodeController::class, 'convert'])->name('ocr.convert');
 Route::get('/lsconvert', [QrCodeController::class, 'listaConvert'])->name('ocr.lsconvert');
-Route::get('/test-job', [QrCodeController::class, 'testJob'])->name('ocr.testjob');
+Route::get('/export', [QrCodeController::class, 'export'])->name('ocr.export');
 
 Route::post('/image/upload', [ImageController::class, 'upload'])->name('image.upload');
 
