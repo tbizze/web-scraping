@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ImageController;
+use App\Http\Controllers\QrCodeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -34,7 +35,13 @@ Route::middleware([
     })->name('dashboard');
 });
 
-Route::get('/image', [ImageController::class, 'index'])->name('image.index');
+Route::get('/ocr', [QrCodeController::class, 'index'])->name('ocr.index');
+Route::get('/lsqrcode', [QrCodeController::class, 'scanQrReceipts'])->name('ocr.lsqrcode');
+Route::get('/convert/{id}', [QrCodeController::class, 'convert'])->name('ocr.convert');
+Route::get('/lsconvert', [QrCodeController::class, 'listaConvert'])->name('ocr.lsconvert');
+Route::get('/test-job', [QrCodeController::class, 'testJob'])->name('ocr.testjob');
+
 Route::post('/image/upload', [ImageController::class, 'upload'])->name('image.upload');
 
 Route::get('/notices', [ImageController::class, 'notices'])->name('image.notices');
+Route::get('/identificador/{id}', [ImageController::class, 'getIdentificador'])->name('image.identificador');
