@@ -3,6 +3,7 @@
 namespace App\Imports;
 
 use App\Models\Transaction;
+use Carbon\Carbon;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 
@@ -22,8 +23,8 @@ class TransactionImport implements ToModel, WithHeadingRow
             'valor_bruto' => $row['Valor_Bruto'],
             'valor_taxa' => $row['Valor_Taxa'],
             'valor_liquido' => $row['Valor_Liquido'],
-            'dt_transacao' => $row['Data_Transacao'],
-            'dt_compensacao' => $row['Data_Compensacao'],
+            'dt_transacao' => Carbon::parse($row['Data_Transacao']),
+            'dt_compensacao' => Carbon::parse($row['Data_Compensacao']),
             'ref_transacao' => $row['Ref_Transacao'],
             'parcelas' => $row['Parcelas'],
             'cod_venda' => $row['Codigo_Venda'],
