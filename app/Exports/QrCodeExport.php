@@ -13,7 +13,7 @@ class QrCodeExport implements FromCollection, WithHeadings
      */
     public function collection()
     {
-        return QrCode::get(['id', 'status', 'grupo', 'carne', 'pagseguro_id']);
+        return QrCode::get(['id', 'status', 'grupo', 'carne', 'pagseguro_id', 'path', 'name_file']);
     }
 
     public function headings(): array
@@ -24,6 +24,8 @@ class QrCodeExport implements FromCollection, WithHeadings
             'Grupo',
             'Carnê',
             'ID PagBank',
+            'Caminho',
+            'Arquivo',
         ];
     }
 }
