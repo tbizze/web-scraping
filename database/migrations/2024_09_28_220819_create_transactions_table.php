@@ -13,6 +13,18 @@ return new class extends Migration
     {
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
+            $table->string('transacao_id');
+            $table->string('tp_pgto');
+            $table->string('status');
+            $table->string('valor_bruto');
+            $table->string('valor_taxa');
+            $table->string('valor_liquido');
+            $table->dateTime('dt_transacao');
+            $table->dateTime('dt_compensacao');
+            $table->string('ref_transacao')->nullable();
+            $table->integer('parcelas');
+            $table->string('cod_venda')->nullable();
+            $table->string('serial_leitor')->nullable();
             $table->timestamps();
         });
     }
