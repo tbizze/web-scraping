@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\TransactionImport;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class TransactionController extends Controller
 {
@@ -61,5 +63,14 @@ class TransactionController extends Controller
     public function destroy(Transaction $transaction)
     {
         //
+    }
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|mimes:xlsx, xls',
+        ]);
+
+        Excel::import(new TransactionImport, $request->file('file'));
+        dd(Transaction::all());
     }
 }
