@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ImageController;
 use App\Http\Controllers\QrCodeController;
+use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -40,6 +41,8 @@ Route::get('/lsqrcode', [QrCodeController::class, 'scanQrReceipts'])->name('ocr.
 Route::get('/convert/{id}', [QrCodeController::class, 'convert'])->name('ocr.convert');
 Route::get('/lsconvert', [QrCodeController::class, 'listaConvert'])->name('ocr.lsconvert');
 Route::get('/export', [QrCodeController::class, 'export'])->name('ocr.export');
+Route::get('/transaction/import', [TransactionController::class, 'import'])->name('extrato.import');
+Route::post('/transaction/import', [TransactionController::class, 'processImport'])->name('extrato.process.import');
 
 Route::post('/image/upload', [ImageController::class, 'upload'])->name('image.upload');
 
