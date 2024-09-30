@@ -16,9 +16,9 @@ return new class extends Migration
             $table->string('transacao_id');
             $table->string('tp_pgto');
             $table->string('status');
-            $table->string('valor_bruto');
-            $table->string('valor_taxa');
-            $table->string('valor_liquido');
+            $table->decimal('valor_bruto');
+            $table->decimal('valor_taxa');
+            $table->decimal('valor_liquido');
             $table->dateTime('dt_transacao');
             $table->dateTime('dt_compensacao');
             $table->string('ref_transacao')->nullable();
