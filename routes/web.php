@@ -41,8 +41,9 @@ Route::get('/lsqrcode', [QrCodeController::class, 'scanQrReceipts'])->name('ocr.
 Route::get('/convert/{id}', [QrCodeController::class, 'convert'])->name('ocr.convert');
 Route::get('/lsconvert', [QrCodeController::class, 'listaConvert'])->name('ocr.lsconvert');
 Route::get('/export', [QrCodeController::class, 'export'])->name('ocr.export');
-Route::get('/transaction/import', [TransactionController::class, 'import'])->name('extrato.import');
-Route::post('/transaction/import', [TransactionController::class, 'processImport'])->name('extrato.process.import');
+Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
+Route::get('/transactions/import', [TransactionController::class, 'import'])->name('transactions.import');
+Route::post('/transactions/import', [TransactionController::class, 'processImport'])->name('transactions.process.import');
 
 Route::post('/image/upload', [ImageController::class, 'upload'])->name('image.upload');
 
