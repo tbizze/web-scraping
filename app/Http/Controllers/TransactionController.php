@@ -64,13 +64,24 @@ class TransactionController extends Controller
     {
         //
     }
-    public function import(Request $request)
+    public function import()
     {
+        //$qr_codes = QrCode::paginate(30);
+        return view('transaction.import');
+    }
+    public function processImport(Request $request)
+    {
+        //dd($request->all());
         $request->validate([
-            'file' => 'required|mimes:xlsx, xls',
+            //'file' => 'required|mimes:xlsx,xls,csv',
+            'file' => 'required|mimetypes:text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
         ]);
 
-        Excel::import(new TransactionImport, $request->file('file'));
-        dd(Transaction::all());
+        //dd($request->all());
+
+        $xz = Excel::import(new TransactionImport, $request->file('file'));
+        dd(Transaction::all(), $xz);
+
+        return redirect()->back()->with('success', 'Transações importadas com sucesso!');
     }
 }
