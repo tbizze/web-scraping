@@ -15,7 +15,7 @@
                     {{-- Chama compomente para exibir flesh message --}}
                     <x-flash-message />
 
-                    <form action="{{ route('extrato.process.import') }}" method="POST" enctype="multipart/form-data">
+                    <form action="{{ route('transactions.process.import') }}" method="POST" enctype="multipart/form-data">
                         @csrf
                         <div class="mb-4 space-y-1">
                             <x-label for="image">Escolha o arquivo Excel</x-label>

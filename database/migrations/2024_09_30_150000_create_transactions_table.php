@@ -14,17 +14,17 @@ return new class extends Migration
         Schema::create('transactions', function (Blueprint $table) {
             $table->id();
             $table->string('transacao_id');
-            $table->string('tp_pgto');
-            $table->string('status');
+            $table->foreignId('tipo_pgto_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignId('status_id')->nullable()->constrained()->onDelete('cascade');
             $table->decimal('valor_bruto');
-            $table->decimal('valor_taxa');
+            $table->decimal('valor_taxa')->nullable();
             $table->decimal('valor_liquido');
             $table->dateTime('dt_transacao');
             $table->dateTime('dt_compensacao');
             $table->string('ref_transacao')->nullable();
             $table->integer('parcelas');
             $table->string('cod_venda')->nullable();
-            $table->string('serial_leitor')->nullable();
+            $table->foreignId('leitor_id')->nullable()->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }
