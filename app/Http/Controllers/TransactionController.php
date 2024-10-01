@@ -22,11 +22,11 @@ class TransactionController extends Controller
         $status_id = $request->input('status_id');
 
         $transactions = Transaction::with(['tipoPgto', 'status', 'leitor'])
-            ->when(request('tp_pgto'), function ($q) use ($tp_pgto_id) {
-                return $q->where('tp_pgto', '=', $tp_pgto_id);
+            ->when(request('tp_pgto_id'), function ($q) use ($tp_pgto_id) {
+                return $q->where('tipo_pgto_id', '=', $tp_pgto_id);
             })
             ->when(request('status_id'), function ($q) use ($status_id) {
-                return $q->where('status', '=', $status_id);
+                return $q->where('status_id', '=', $status_id);
             })
             ->paginate(30);
 
@@ -129,7 +129,7 @@ class TransactionController extends Controller
                 }
             }
         }
-        dd($receipts);
-        return redirect()->back()->with('success', 'Transações importadas com sucesso!');
+        //dd($receipts);
+        return redirect()->route('transactions.index')->with('success', 'Transações importadas com sucesso!');
     }
 }
