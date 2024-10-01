@@ -20,7 +20,7 @@ class QrCodeController extends Controller
     }
 
     // Método para varrer diretórios, obtendo informações dos arquivos de QRCode.
-    function scanQrReceipts()
+    function scanPastas()
     {
         // Definir o diretório base com as imagens de QR Code.
         $baseDir = storage_path('app/images');
@@ -83,15 +83,12 @@ class QrCodeController extends Controller
     }
 
     // Método faz conversão de JPG para TEXT.
-    public function convert(string $id)
+    public function convert(QrCode $qrCode)
     {
-        // Busca o registro com dados da imagem.
-        $qrCode = QrCode::findOrFail($id);
-
         // Se o QR Code já possui identificador, então sai do método.
         if ($qrCode->status == 1) {
             // Retornar mensagem informando.
-            return redirect()->route('ocr.index')->with('message', 'Este QR Code já possui identificador salvo.');
+            return redirect()->route('comprovantes.index')->with('message', 'Este QR Code já possui identificador salvo.');
         }
 
 
@@ -99,7 +96,7 @@ class QrCodeController extends Controller
         $imagePath = storage_path($qrCode->path . '/' . $qrCode->name_file);
 
         // Faz o web scraping para converter a imagem para TXT.
-        $output = shell_exec("node " . base_path('convert2.cjs') . " " . $imagePath);
+        $output = shell_exec("node " . base_path('scrap-convert-ocr.cjs') . " " . $imagePath);
 
         // Se há resultado, salvar os QR codes no banco de dados
         if ($output) {

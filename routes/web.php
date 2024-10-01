@@ -36,11 +36,11 @@ Route::middleware([
     })->name('dashboard');
 
     // Rotas de QR Codes.
-    Route::get('/ocr', [QrCodeController::class, 'index'])->name('ocr.index');
-    Route::get('/lsqrcode', [QrCodeController::class, 'scanQrReceipts'])->name('ocr.lsqrcode');
-    Route::get('/convert/{id}', [QrCodeController::class, 'convert'])->name('ocr.convert');
-    Route::get('/lsconvert', [QrCodeController::class, 'listaConvert'])->name('ocr.lsconvert');
-    Route::get('/export', [QrCodeController::class, 'export'])->name('ocr.export');
+    Route::get('/comprovantes', [QrCodeController::class, 'index'])->name('comprovantes.index');
+    Route::get('/comprovantes/scan-pastas', [QrCodeController::class, 'scanPastas'])->name('comprovantes.scan-pastas');
+    Route::get('/comprovantes/convert/{qrCode}', [QrCodeController::class, 'convert'])->name('comprovantes.convert');
+    //Route::get('/lsconvert', [QrCodeController::class, 'listaConvert'])->name('ocr.lsconvert');
+    Route::get('/comprovantes/export', [QrCodeController::class, 'export'])->name('comprovantes.export');
 
     // Rotas de transações.
     Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
