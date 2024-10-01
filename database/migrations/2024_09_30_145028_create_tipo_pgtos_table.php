@@ -13,6 +13,8 @@ return new class extends Migration
     {
         Schema::create('tipo_pgtos', function (Blueprint $table) {
             $table->id();
+            $table->string('description');
+            $table->string('notes')->nullable();
             $table->timestamps();
         });
     }
