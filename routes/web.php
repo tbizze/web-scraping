@@ -44,6 +44,7 @@ Route::get('/export', [QrCodeController::class, 'export'])->name('ocr.export');
 Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
 Route::get('/transactions/import', [TransactionController::class, 'import'])->name('transactions.import');
 Route::post('/transactions/import', [TransactionController::class, 'processImport'])->name('transactions.process.import');
+Route::get('/transactions/import-all', [TransactionController::class, 'importAll'])->name('transactions.import-all');
 
 Route::post('/image/upload', [ImageController::class, 'upload'])->name('image.upload');
 
