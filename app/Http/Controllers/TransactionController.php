@@ -20,6 +20,7 @@ class TransactionController extends Controller
     {
         $tp_pgto_id = $request->input('tp_pgto_id');
         $status_id = $request->input('status_id');
+        $search = $request->input('search');
 
         $transactions = Transaction::with(['tipoPgto', 'status', 'leitor'])
             ->when(request('tp_pgto_id'), function ($q) use ($tp_pgto_id) {
@@ -28,13 +29,24 @@ class TransactionController extends Controller
             ->when(request('status_id'), function ($q) use ($status_id) {
                 return $q->where('status_id', '=', $status_id);
             })
+            ->when($search, function ($query, $value) {
+                $query->where('ref_transacao', 'like', "%$value%");
+                $query->orWhere('dt_transacao', 'like', "%$value%");
+            })
             ->paginate(30);
 
         $tpPgtos = TipoPgto::all();
         $statuses = Status::all();
         $leitors = Leitor::all();
 
-        return view('transaction.index', compact('transactions', 'tpPgtos', 'statuses', 'tp_pgto_id', 'status_id'));
+        return view('transaction.index', compact(
+            'transactions',
+            'tpPgtos',
+            'statuses',
+            'tp_pgto_id',
+            'status_id',
+            'search'
+        ));
     }
 
     /**

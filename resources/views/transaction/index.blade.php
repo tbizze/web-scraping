@@ -58,6 +58,10 @@
                                             @endforeach
                                         </select>
                                     </div>
+                                    <div class="">
+                                        <x-input id="search" name="search" value="{{ old('search', $search) }}"
+                                            placeholder="Localizar..." />
+                                    </div>
                                     <x-button>Filtrar</x-button>
                                 </div>
                             </form>
