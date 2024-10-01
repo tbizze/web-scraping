@@ -3,8 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Imports\TransactionImport;
+use App\Models\Leitor;
+use App\Models\Status;
+use App\Models\TipoPgto;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\File;
 use Maatwebsite\Excel\Facades\Excel;
 
 class TransactionController extends Controller
@@ -12,10 +16,25 @@ class TransactionController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $transactions = Transaction::paginate(30);
-        return view('transaction.index', compact('transactions'));
+        $tp_pgto_id = $request->input('tp_pgto_id');
+        $status_id = $request->input('status_id');
+
+        $transactions = Transaction::with(['tipoPgto', 'status', 'leitor'])
+            ->when(request('tp_pgto'), function ($q) use ($tp_pgto_id) {
+                return $q->where('tp_pgto', '=', $tp_pgto_id);
+            })
+            ->when(request('status_id'), function ($q) use ($status_id) {
+                return $q->where('status', '=', $status_id);
+            })
+            ->paginate(30);
+
+        $tpPgtos = TipoPgto::all();
+        $statuses = Status::all();
+        $leitors = Leitor::all();
+
+        return view('transaction.index', compact('transactions', 'tpPgtos', 'statuses', 'tp_pgto_id', 'status_id'));
     }
 
     /**
@@ -81,8 +100,36 @@ class TransactionController extends Controller
         //dd($request->all());
 
         $xz = Excel::import(new TransactionImport, $request->file('file'));
-        dd(Transaction::all(), $xz);
+        //dd(Transaction::all(), $xz);
 
+        return redirect()->back()->with('success', 'Transações importadas com sucesso!');
+    }
+
+    // Método para varrer diretório a procura de arquivos, resgatando seu path.
+    // Encontrando, realiza importação.
+    public function importAll()
+    {
+        // Definir o diretório base com as imagens de QR Code.
+        $baseDir = storage_path('app/extratos');
+        $folders = ['2024'];
+        $receipts = [];
+
+        // Percorrer as pastas e listar os QR Codes.
+        foreach ($folders as $folder) {
+            $path = $baseDir . '/' . $folder;
+            if (File::exists($path)) {
+                $files = File::files($path);
+
+                foreach ($files as $file) {
+                    $receipts[] = [
+                        'nomePasta' => $folder,
+                        'nomeArquivo' => $file->getFilename(),
+                    ];
+                    Excel::import(new TransactionImport, $path . '/' . $file->getFilename());
+                }
+            }
+        }
+        dd($receipts);
         return redirect()->back()->with('success', 'Transações importadas com sucesso!');
     }
 }
