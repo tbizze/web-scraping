@@ -34,17 +34,20 @@ Route::middleware([
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
-});
 
-Route::get('/ocr', [QrCodeController::class, 'index'])->name('ocr.index');
-Route::get('/lsqrcode', [QrCodeController::class, 'scanQrReceipts'])->name('ocr.lsqrcode');
-Route::get('/convert/{id}', [QrCodeController::class, 'convert'])->name('ocr.convert');
-Route::get('/lsconvert', [QrCodeController::class, 'listaConvert'])->name('ocr.lsconvert');
-Route::get('/export', [QrCodeController::class, 'export'])->name('ocr.export');
-Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
-Route::get('/transactions/import', [TransactionController::class, 'import'])->name('transactions.import');
-Route::post('/transactions/import', [TransactionController::class, 'processImport'])->name('transactions.process.import');
-Route::get('/transactions/import-all', [TransactionController::class, 'importAll'])->name('transactions.import-all');
+    // Rotas de QR Codes.
+    Route::get('/ocr', [QrCodeController::class, 'index'])->name('ocr.index');
+    Route::get('/lsqrcode', [QrCodeController::class, 'scanQrReceipts'])->name('ocr.lsqrcode');
+    Route::get('/convert/{id}', [QrCodeController::class, 'convert'])->name('ocr.convert');
+    Route::get('/lsconvert', [QrCodeController::class, 'listaConvert'])->name('ocr.lsconvert');
+    Route::get('/export', [QrCodeController::class, 'export'])->name('ocr.export');
+
+    // Rotas de transações.
+    Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
+    Route::get('/transactions/import', [TransactionController::class, 'import'])->name('transactions.import');
+    Route::post('/transactions/import', [TransactionController::class, 'processImport'])->name('transactions.process.import');
+    Route::get('/transactions/import-all', [TransactionController::class, 'importAll'])->name('transactions.import-all');
+});
 
 Route::post('/image/upload', [ImageController::class, 'upload'])->name('image.upload');
 
