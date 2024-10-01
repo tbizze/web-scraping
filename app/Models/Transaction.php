@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -25,10 +27,26 @@ class Transaction extends Model
         'leitor_id',
     ];
 
-    // protected $casts = [
-    //     'dt_transacao' => 'datetime:Y-m-d',
-    //     'dt_compensacao' => 'datetime:Y-m-d',
-    // ];
+    protected $casts = [
+        'dt_transacao' => 'datetime',
+        'dt_compensacao' => 'datetime',
+    ];
+
+    // Formata data para interface.
+    protected function dtTransacao(): Attribute
+    {
+        return Attribute::make(
+            get: fn(string $value) => Carbon::parse($value)->format('d/m/Y H:i'),
+        );
+    }
+
+    // Formata data para interface.
+    protected function dtCompensacao(): Attribute
+    {
+        return Attribute::make(
+            get: fn(string $value) => Carbon::parse($value)->format('d/m/Y H:i'),
+        );
+    }
 
     public function tipoPgto(): BelongsTo
     {

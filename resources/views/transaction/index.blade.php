@@ -86,13 +86,13 @@
                                     <td class="px-4 py-2 text-center">
                                         {{ $item->status->description }}
                                     </td>
-                                    <td class="px-4 py-2 text-center">
+                                    <td class="px-4 py-2 text-right">
                                         {{ $item->valor_bruto }}
                                     </td>
-                                    <td class="px-4 py-2 text-center">
+                                    <td class="px-4 py-2 text-right">
                                         {{ $item->valor_taxa }}
                                     </td>
-                                    <td class="px-4 py-2 ">
+                                    <td class="px-4 py-2 text-right">
                                         {{ $item->valor_liquido }}
                                     </td>
                                     <td class="px-4 py-2 ">
