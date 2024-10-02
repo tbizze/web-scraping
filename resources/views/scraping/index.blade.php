@@ -18,10 +18,10 @@
                     <div class="flex justify-between">
                         <div class="flex gap-2">
                             <x-biz.link href="{{ route('comprovantes.scan-pastas') }}">
-                                Processar arquivos
+                                Varrer pastas
                             </x-biz.link>
                             <x-biz.link href="{{ route('comprovantes.export') }}">
-                                Exportar Excel
+                                Exportar em Excel
                             </x-biz.link>
 
                         </div>
