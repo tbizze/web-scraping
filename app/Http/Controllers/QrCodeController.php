@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exports\QrCodeExport;
 use App\Models\QrCode;
+use App\Models\Transaction;
 use App\Services\ConvertService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -39,6 +40,55 @@ class QrCodeController extends Controller
         ];
 
         return view('scraping.index', compact('qr_codes', 'grupos', 'grupo', 'search'));
+    }
+
+    public function baixados(Request $request)
+    {
+        $grupo = $request->input('grupo');
+        $search = $request->input('search');
+
+
+        $qr_codes = QrCode::query()
+            ->with('transaction')
+            //->has('transaction')
+            ->paginate(30);
+        //dd($qr_codes);
+
+        $grupos = [
+            ['value' => 100, 'label' => 'Carnês de 100'],
+            ['value' => 50, 'label' => 'Carnês de 50'],
+            ['value' => 30, 'label' => 'Carnês de 30'],
+            ['value' => 20, 'label' => 'Carnês de 20'],
+        ];
+        return view('scraping.baixados', compact('qr_codes', 'grupos', 'grupo', 'search'));
+    }
+    public function makeRelationshipTransactions()
+    {
+        // Busca todos os QR Codes salvos no BD.
+        $qr_codes = QrCode::all();
+        $i = 0;
+
+        foreach ($qr_codes as $item) {
+            // Busca transações filtrando pelo 'pagseguro_id'.
+            $transaction = Transaction::where('ref_transacao', $item->pagseguro_id)->first();
+
+            // Se existir transação.
+            if ($transaction) {
+
+                // Verifica se não existe uma relação entre QR Code e Transação.
+                if (!$item->transaction_id) {
+
+                    // Salvar relacionamento entre QR Code e Transação.
+                    $item->transaction()->associate($transaction);
+                    $item->save();
+                    //$item->update(['transaction_id' => $transaction->id]);
+                    //dd($item->toArray());
+                    $i++;
+                }
+            }
+        }
+        //dd($i);
+        return redirect()->route('comprovantes.index')->with('success', "Foram relacionados $i transações com sucesso!");
     }
 
     // Método para varrer diretórios, obtendo informações dos arquivos de QRCode.
