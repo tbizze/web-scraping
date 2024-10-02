@@ -41,6 +41,8 @@ Route::middleware([
     Route::get('/comprovantes/convert/{qrCode}', [QrCodeController::class, 'convert'])->name('comprovantes.convert');
     //Route::get('/lsconvert', [QrCodeController::class, 'listaConvert'])->name('ocr.lsconvert');
     Route::get('/comprovantes/export', [QrCodeController::class, 'export'])->name('comprovantes.export');
+    Route::get('/comprovantes/baixado', [QrCodeController::class, 'baixados'])->name('comprovantes.baixado');
+    Route::get('/comprovantes/make-relationship', [QrCodeController::class, 'makeRelationshipTransactions'])->name('comprovantes.make-relationship');
 
     // Rotas de transações.
     Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
