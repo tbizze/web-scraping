@@ -35,9 +35,22 @@ class TransactionController extends Controller
             })
             ->paginate(30);
 
-        $tpPgtos = TipoPgto::all();
-        $statuses = Status::all();
-        $leitors = Leitor::all();
+        $a = collect(Status::all())->map(function ($item) {
+            return [
+                'value' => $item['id'],
+                'label' => $item['short_description'],
+            ];
+        })->toArray();
+
+        $tpPgtos = TipoPgto::select('id as value', 'description as label')->get();
+        $leitors = Leitor::select('id as value', 'description as label')->get();
+        $statuses =
+            collect(Status::all())->map(function ($item) {
+                return [
+                    'value' => $item['id'],
+                    'label' => $item['short_description'],
+                ];
+            })->toArray();
 
         return view('transaction.index', compact(
             'transactions',

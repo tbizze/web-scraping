@@ -33,30 +33,16 @@
                                 <div class="flex flex-wrap gap-2">
                                     @csrf
                                     <div class="">
-                                        <select
-                                            class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded-md leading-4 text-sm focus:outline-none focus:bg-white focus:border-gray-500"
-                                            id="tp_pgto_id" name="tp_pgto_id">
+                                        <x-biz.select id="tp_pgto_id" name="tp_pgto_id" :options="$tpPgtos"
+                                            :selected="$tp_pgto_id" class="py-2">
                                             <option selected value="">Tipo Pgto:</option>
-                                            @foreach ($tpPgtos as $item)
-                                                <option value="{{ $item->id }}"
-                                                    {{ $item->id == $tp_pgto_id ? 'selected' : '' }}>
-                                                    {{ $item->description }}
-                                                </option>
-                                            @endforeach
-                                        </select>
+                                        </x-biz.select>
                                     </div>
                                     <div class="">
-                                        <select
-                                            class="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded-md leading-4 text-sm focus:outline-none focus:bg-white focus:border-gray-500"
-                                            id="status_id" name="status_id">
+                                        <x-biz.select id="status_id" name="status_id" :options="$statuses"
+                                            :selected="$status_id" class="py-2">
                                             <option selected value="">Status:</option>
-                                            @foreach ($statuses as $item)
-                                                <option value="{{ $item->id }}"
-                                                    {{ $item->id == $status_id ? 'selected' : '' }}>
-                                                    {{ substr($item->description, 0, 20) }}
-                                                </option>
-                                            @endforeach
-                                        </select>
+                                        </x-biz.select>
                                     </div>
                                     <div class="">
                                         <x-input id="search" name="search" value="{{ old('search', $search) }}"
