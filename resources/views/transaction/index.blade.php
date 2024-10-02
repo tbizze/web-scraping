@@ -19,11 +19,11 @@
                         {{-- Lado Esquerdo: botões --}}
                         <div class="">
                             <div class="flex gap-2">
-                                <x-biz.link href="{{ route('transactions.import') }}" class="py-3">
-                                    Importar Excel
-                                </x-biz.link>
                                 <x-biz.link href="{{ route('transactions.import-all') }}" class="py-3">
-                                    Varrer Diretório
+                                    Varrer Pastas
+                                </x-biz.link>
+                                <x-biz.link href="{{ route('transactions.import') }}" class="py-3">
+                                    Importar
                                 </x-biz.link>
                             </div>
                         </div>
