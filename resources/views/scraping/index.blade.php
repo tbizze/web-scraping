@@ -15,21 +15,40 @@
                     {{-- Chama compomente para exibir flesh message --}}
                     <x-biz.flash-message />
 
-                    <div class="flex gap-2">
-                        <a href="{{ route('comprovantes.scan-pastas') }}"
-                            class="inline-flex items-center px-4 py-2 bg-gray-800 dark:bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-white dark:text-gray-800 uppercase tracking-widest hover:bg-gray-700 dark:hover:bg-white focus:bg-gray-700 dark:focus:bg-white active:bg-gray-900 dark:active:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">
-                            Processar arquivos
-                        </a>
-                        <a href="{{ route('comprovantes.export') }}"
-                            class="inline-flex items-center px-4 py-2 bg-gray-800 dark:bg-gray-200 border border-transparent rounded-md font-semibold text-xs text-white dark:text-gray-800 uppercase tracking-widest hover:bg-gray-700 dark:hover:bg-white focus:bg-gray-700 dark:focus:bg-white active:bg-gray-900 dark:active:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 transition ease-in-out duration-150">
-                            Exportar Excel
-                        </a>
+                    <div class="flex justify-between">
+                        <div class="flex gap-2">
+                            <x-biz.link href="{{ route('comprovantes.scan-pastas') }}">
+                                Processar arquivos
+                            </x-biz.link>
+                            <x-biz.link href="{{ route('comprovantes.export') }}">
+                                Exportar Excel
+                            </x-biz.link>
 
+                        </div>
+                        <div class="">
+                            <form action="{{ route('comprovantes.index') }}" method="GET" class="ml-4">
+                                <div class="flex flex-wrap gap-2">
+                                    @csrf
+                                    <div class="">
+                                        <x-biz.select id="grupo" name="grupo" :options="$grupos" :selected="$grupo"
+                                            class="py-2">
+                                            <option selected value="">Grupo:</option>
+
+                                        </x-biz.select>
+                                    </div>
+                                    <div class="">
+                                        <x-input id="search" name="search" value="{{ old('search', $search) }} "
+                                            class="py-2" placeholder="Localizar..." />
+                                    </div>
+                                    <x-button>Filtrar</x-button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                     <table class="min-w-full w-full table-auto">
                         <thead>
                             <tr class="bg-slate-600 ">
-                                <th class="">ID</th>
+                                <th class="py-3">ID</th>
                                 <th class="">Grupo</th>
                                 <th class="">Carnê</th>
                                 <th class="">Id Pagbank</th>

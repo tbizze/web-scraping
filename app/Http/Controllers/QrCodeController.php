@@ -13,10 +13,32 @@ use Maatwebsite\Excel\Facades\Excel;
 class QrCodeController extends Controller
 {
     // Método para listar os QR Codes salvos no BD.
-    public function index()
+    public function index(Request $request)
     {
-        $qr_codes = QrCode::paginate(30);
-        return view('scraping.index', compact('qr_codes'));
+        $grupo = $request->input('grupo');
+        $search = $request->input('search');
+
+        $qr_codes = QrCode::query()
+            ->when(request('grupo'), function ($q) use ($grupo) {
+                return $q->where('grupo', 'like', $grupo);
+            })
+            ->when(
+                $search,
+                function ($query, $value) {
+                    $query->where('pagseguro_id', 'like', "%$value%");
+                    $query->orWhere('carne', 'like', "$value");
+                }
+            )
+            ->paginate(30);
+
+        $grupos = [
+            ['value' => 100, 'label' => 'Carnês de 100'],
+            ['value' => 50, 'label' => 'Carnês de 50'],
+            ['value' => 30, 'label' => 'Carnês de 30'],
+            ['value' => 20, 'label' => 'Carnês de 20'],
+        ];
+
+        return view('scraping.index', compact('qr_codes', 'grupos', 'grupo', 'search'));
     }
 
     // Método para varrer diretórios, obtendo informações dos arquivos de QRCode.
