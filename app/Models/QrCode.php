@@ -8,5 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class QrCode extends Model
 {
     use HasFactory;
-    protected $fillable = ['path', 'name_file', 'status', 'content', 'grupo', 'carne', 'pagseguro_id'];
+    protected $fillable = ['path', 'name_file', 'status', 'content', 'grupo', 'carne', 'pagseguro_id', 'transaction_id'];
 }
