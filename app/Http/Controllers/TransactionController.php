@@ -7,6 +7,7 @@ use App\Models\Leitor;
 use App\Models\Status;
 use App\Models\TipoPgto;
 use App\Models\Transaction;
+use App\Services\ImportExcelService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
 use Maatwebsite\Excel\Facades\Excel;
@@ -137,7 +138,13 @@ class TransactionController extends Controller
         // Definir o diretório base com as imagens de QR Code.
         $baseDir = storage_path('app/extratos');
         $folders = ['2024'];
-        $receipts = [];
+        $imports = [];
+        $qdeArquivos = 0;
+        $rowsSaved = 0;
+        $rowsIgnored = 0;
+
+        //Instancia serviço de importação.
+        $importExcelService = new ImportExcelService;
 
         // Percorrer as pastas e listar os QR Codes.
         foreach ($folders as $folder) {
@@ -146,15 +153,27 @@ class TransactionController extends Controller
                 $files = File::files($path);
 
                 foreach ($files as $file) {
-                    $receipts[] = [
-                        'nomePasta' => $folder,
-                        'nomeArquivo' => $file->getFilename(),
-                    ];
-                    Excel::import(new TransactionImport, $path . '/' . $file->getFilename());
+
+                    //$data = Excel::import(new TransactionImport, $path . '/' . $file->getFilename());
+                    $data = Excel::toCollection(new TransactionImport, $path . '/' . $file->getFilename());
+
+                    $imports[] = $importExcelService->allImport($data);
+                    $qdeArquivos++;
                 }
             }
         }
-        //dd($receipts);
-        return redirect()->route('transactions.index')->with('success', 'Transações importadas com sucesso!');
+        // Itera a variável de retorno, somando quantidade de linhas processadas.
+        foreach ($imports as $item) {
+            $rowsSaved += $item['rowsSaved'];
+            $rowsIgnored += $item['rowsIgnored'];
+        }
+        // Prepara mensagem de retorno para interface.
+        $message = "Processado $qdeArquivos arquivos. Importado $rowsSaved linhas com sucesso e ignorado $rowsIgnored linhas!";
+
+        // Retornar mensagem.
+        if ($rowsSaved > 0) {
+            return redirect()->route('transactions.index')->with('success', $message);
+        }
+        return redirect()->route('transactions.index')->with('message', $message);
     }
 }
