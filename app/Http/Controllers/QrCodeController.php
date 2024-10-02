@@ -13,14 +13,36 @@ use Maatwebsite\Excel\Facades\Excel;
 class QrCodeController extends Controller
 {
     // Método para listar os QR Codes salvos no BD.
-    public function index()
+    public function index(Request $request)
     {
-        $qr_codes = QrCode::paginate(30);
-        return view('scraping.index', compact('qr_codes'));
+        $grupo = $request->input('grupo');
+        $search = $request->input('search');
+
+        $qr_codes = QrCode::query()
+            ->when(request('grupo'), function ($q) use ($grupo) {
+                return $q->where('grupo', 'like', $grupo);
+            })
+            ->when(
+                $search,
+                function ($query, $value) {
+                    $query->where('pagseguro_id', 'like', "%$value%");
+                    $query->orWhere('carne', 'like', "$value");
+                }
+            )
+            ->paginate(30);
+
+        $grupos = [
+            ['value' => 100, 'label' => 'Carnês de 100'],
+            ['value' => 50, 'label' => 'Carnês de 50'],
+            ['value' => 30, 'label' => 'Carnês de 30'],
+            ['value' => 20, 'label' => 'Carnês de 20'],
+        ];
+
+        return view('scraping.index', compact('qr_codes', 'grupos', 'grupo', 'search'));
     }
 
     // Método para varrer diretórios, obtendo informações dos arquivos de QRCode.
-    function scanQrReceipts()
+    function scanPastas()
     {
         // Definir o diretório base com as imagens de QR Code.
         $baseDir = storage_path('app/images');
@@ -42,15 +64,19 @@ class QrCodeController extends Controller
         }
 
         // Salvar os QR Codes no BD e redirecionar para a página de listagem.
-        $this->storeQrCodes($receipts);
-        return redirect()->route('ocr.index')->with('success', 'Imagens listadas com sucesso!');
+        $stored = $this->storeQrCodes($receipts);
+        if ($stored['items'] == 0) {
+            return redirect()->route('comprovantes.index')->with('message', 'Nenhum arquivo QR Code encontrado!');
+        } else {
+            return redirect()->route('comprovantes.index')->with('success', $stored['message']);
+        }
     }
 
     // Método para salvar as informações dos QRCode no BD.
     public function storeQrCodes($receipts)
     {
         $items = [];
-        $id = 0;
+        $qdeArquivos = 0;
         foreach ($receipts as $receipt) {
             $items[] = [
                 'path' => 'app/images/' . $receipt['nomePasta'],
@@ -58,40 +84,41 @@ class QrCodeController extends Controller
                 'grupo' => $receipt['nomePasta'],
                 'carne' => $this->getNameCarne($receipt['nomeArquivo']),
             ];
-            $id++;
+            $qdeArquivos++;
         }
 
-        $x = 0;
+        $saveArquivos = 0;
+        $ignoreArquivos = 0;
         // Salvar os QR Codes no banco de dados
         foreach ($items as $item) {
-            $test = QrCode::query()
+            // Procura registro com as informações do arquivo escaneado.
+            $qrCode = QrCode::query()
                 ->where('grupo', '=', $item['grupo'])
                 ->where('carne', '=', $item['carne'])
                 ->get();
 
-            // Verifica se já existe um registro com os mesmos dados.
-            if ($test->isEmpty()) {
-                $x++;
-                //QrCode::create($item);
+            // Se não existe um registro com os mesmos dados, cria.
+            if ($qrCode->isEmpty()) {
+                $saveArquivos++;
+                QrCode::create($item);
+            } else {
+                $ignoreArquivos++;
             }
-
-            //QrCode::create($item);
         }
+        // Prepara mensagem de retorno para interface.
+        $message = "Salvo $saveArquivos arquivos com sucesso e ignorado $ignoreArquivos arquivos!";
 
-        // Retornar a quantidade de QR Codes salvos e uma mensagem de sucesso.
-        return ['items' => $id, 'message' => 'Salvo com sucesso!'];
+        // Retornar a quantidade de QR Codes salvos e uma mensagem.
+        return ['items' => $qdeArquivos, 'message' => $message];
     }
 
     // Método faz conversão de JPG para TEXT.
-    public function convert(string $id)
+    public function convert(QrCode $qrCode)
     {
-        // Busca o registro com dados da imagem.
-        $qrCode = QrCode::findOrFail($id);
-
         // Se o QR Code já possui identificador, então sai do método.
         if ($qrCode->status == 1) {
             // Retornar mensagem informando.
-            return redirect()->route('ocr.index')->with('message', 'Este QR Code já possui identificador salvo.');
+            return redirect()->route('comprovantes.index')->with('message', 'Este QR Code já possui identificador salvo.');
         }
 
 
@@ -99,7 +126,7 @@ class QrCodeController extends Controller
         $imagePath = storage_path($qrCode->path . '/' . $qrCode->name_file);
 
         // Faz o web scraping para converter a imagem para TXT.
-        $output = shell_exec("node " . base_path('convert2.cjs') . " " . $imagePath);
+        $output = shell_exec("node " . base_path('scrap-convert-ocr.cjs') . " " . $imagePath);
 
         // Se há resultado, salvar os QR codes no banco de dados
         if ($output) {
@@ -115,11 +142,11 @@ class QrCodeController extends Controller
             ]);
 
             // Retornar mensagem informando.
-            return redirect()->route('ocr.index')->with('success', 'Este QR foi convertido com sucesso!');
+            return redirect()->route('comprovantes.index')->with('success', 'Este QR foi convertido com sucesso!');
         } else {
 
             // Retornar mensagem informando.
-            return redirect()->route('ocr.index')->with('error', 'Erro ao converter a imagem para TXT.');
+            return redirect()->route('comprovantes.index')->with('error', 'Erro ao converter a imagem para TXT.');
         }
     }
 
