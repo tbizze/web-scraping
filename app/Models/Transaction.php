@@ -44,7 +44,7 @@ class Transaction extends Model
     protected function dtCompensacao(): Attribute
     {
         return Attribute::make(
-            get: fn(string $value) => Carbon::parse($value)->format('d/m/Y H:i'),
+            get: fn($value) => $value ? Carbon::parse($value)->format('d/m/Y H:i') : null,
         );
     }
 
@@ -54,7 +54,7 @@ class Transaction extends Model
     }
     public function status(): BelongsTo
     {
-        return $this->belongsTo(Status::class);
+        return $this->belongsTo(Status::class)->withDefault('N/D');
     }
     public function leitor(): BelongsTo
     {
