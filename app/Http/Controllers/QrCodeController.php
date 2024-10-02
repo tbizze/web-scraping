@@ -64,15 +64,19 @@ class QrCodeController extends Controller
         }
 
         // Salvar os QR Codes no BD e redirecionar para a página de listagem.
-        $this->storeQrCodes($receipts);
-        return redirect()->route('ocr.index')->with('success', 'Imagens listadas com sucesso!');
+        $stored = $this->storeQrCodes($receipts);
+        if ($stored['items'] == 0) {
+            return redirect()->route('comprovantes.index')->with('message', 'Nenhum arquivo QR Code encontrado!');
+        } else {
+            return redirect()->route('comprovantes.index')->with('success', $stored['message']);
+        }
     }
 
     // Método para salvar as informações dos QRCode no BD.
     public function storeQrCodes($receipts)
     {
         $items = [];
-        $id = 0;
+        $qdeArquivos = 0;
         foreach ($receipts as $receipt) {
             $items[] = [
                 'path' => 'app/images/' . $receipt['nomePasta'],
@@ -80,28 +84,32 @@ class QrCodeController extends Controller
                 'grupo' => $receipt['nomePasta'],
                 'carne' => $this->getNameCarne($receipt['nomeArquivo']),
             ];
-            $id++;
+            $qdeArquivos++;
         }
 
-        $x = 0;
+        $saveArquivos = 0;
+        $ignoreArquivos = 0;
         // Salvar os QR Codes no banco de dados
         foreach ($items as $item) {
-            $test = QrCode::query()
+            // Procura registro com as informações do arquivo escaneado.
+            $qrCode = QrCode::query()
                 ->where('grupo', '=', $item['grupo'])
                 ->where('carne', '=', $item['carne'])
                 ->get();
 
-            // Verifica se já existe um registro com os mesmos dados.
-            if ($test->isEmpty()) {
-                $x++;
-                //QrCode::create($item);
+            // Se não existe um registro com os mesmos dados, cria.
+            if ($qrCode->isEmpty()) {
+                $saveArquivos++;
+                QrCode::create($item);
+            } else {
+                $ignoreArquivos++;
             }
-
-            //QrCode::create($item);
         }
+        // Prepara mensagem de retorno para interface.
+        $message = "Salvo $saveArquivos arquivos com sucesso e ignorado $ignoreArquivos arquivos!";
 
-        // Retornar a quantidade de QR Codes salvos e uma mensagem de sucesso.
-        return ['items' => $id, 'message' => 'Salvo com sucesso!'];
+        // Retornar a quantidade de QR Codes salvos e uma mensagem.
+        return ['items' => $qdeArquivos, 'message' => $message];
     }
 
     // Método faz conversão de JPG para TEXT.
@@ -134,11 +142,11 @@ class QrCodeController extends Controller
             ]);
 
             // Retornar mensagem informando.
-            return redirect()->route('ocr.index')->with('success', 'Este QR foi convertido com sucesso!');
+            return redirect()->route('comprovantes.index')->with('success', 'Este QR foi convertido com sucesso!');
         } else {
 
             // Retornar mensagem informando.
-            return redirect()->route('ocr.index')->with('error', 'Erro ao converter a imagem para TXT.');
+            return redirect()->route('comprovantes.index')->with('error', 'Erro ao converter a imagem para TXT.');
         }
     }
 
