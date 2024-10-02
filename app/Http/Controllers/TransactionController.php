@@ -110,11 +110,14 @@ class TransactionController extends Controller
     {
         //
     }
+
+    // Método para exibir view de importação individual de um arquivo CSV o Excel.
     public function import()
     {
-        //$qr_codes = QrCode::paginate(30);
         return view('transaction.import');
     }
+
+    // Método para processar importação individual de um arquivo CSV o Excel.
     public function processImport(Request $request)
     {
         //dd($request->all());
@@ -132,7 +135,7 @@ class TransactionController extends Controller
     }
 
     // Método para varrer diretório a procura de arquivos, resgatando seu path.
-    // Encontrando, realiza importação.
+    // Encontrando, tenta realizar importação.
     public function importAll()
     {
         // Definir o diretório base com as imagens de QR Code.
@@ -146,17 +149,24 @@ class TransactionController extends Controller
         //Instancia serviço de importação.
         $importExcelService = new ImportExcelService;
 
-        // Percorrer as pastas e listar os QR Codes.
+        // Percorrer as pastas definidas em $folders.
         foreach ($folders as $folder) {
+            // Define o diretório base para percorrer.
             $path = $baseDir . '/' . $folder;
+
+            // Verifica se existem arquivos.
             if (File::exists($path)) {
+
+                // Lista todos os arquivos em $path.
                 $files = File::files($path);
 
+                // Itera sobre os arquivos e realiza a importação.
                 foreach ($files as $file) {
 
-                    //$data = Excel::import(new TransactionImport, $path . '/' . $file->getFilename());
+                    // Obtêm os dados do arquivo na variável $data.
                     $data = Excel::toCollection(new TransactionImport, $path . '/' . $file->getFilename());
 
+                    // Tenta a importação, enviando os dados obtidos do arquivo. Retorna um array com quantidade de linhas importadas e ignoradas.
                     $imports[] = $importExcelService->allImport($data);
                     $qdeArquivos++;
                 }

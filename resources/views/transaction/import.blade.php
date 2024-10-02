@@ -26,8 +26,9 @@
                                 <div class="text-xs text-red-600">{{ $message }}</div>
                             @enderror
                         </div>
-                        <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
                             <x-button>Enviar</x-button>
+                            <x-biz.link href="{{ route('transactions.index') }}">Cancelar</x-biz.link>
                         </div>
                     </form>
 
