@@ -33,11 +33,15 @@ class TransactionImport implements ToModel, WithHeadingRow
     }
 
     // Método para converter números em formato legível.
-    protected function formatNumber($number)
+    protected function formatNumber(mixed $number): float
     {
-        if ($number) {
+        // Verifica se é um número do tipo texto.
+        // Caso seja, remove caracteres indesejados e converte para decimal.
+        // Caso contrário, retorna o número como está.
+        if ($number && !is_numeric($number)) {
             return (float) str_replace(['.', ','], ['', '.'], $number);
         }
+        return $number;
     }
 
     // Método para converter a data no formato numérico do Excel para um formato legível.
