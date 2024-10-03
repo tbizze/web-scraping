@@ -18,6 +18,9 @@
                     <x-nav-link href="{{ route('comprovantes.index') }}" :active="request()->routeIs('comprovantes.index')">
                         {{ __('Comprovantes') }}
                     </x-nav-link>
+                    <x-nav-link href="{{ route('comprovantes.baixado') }}" :active="request()->routeIs('comprovantes.baixado')">
+                        {{ __('Quitados') }}
+                    </x-nav-link>
                     <x-nav-link href="{{ route('transactions.index') }}" :active="request()->routeIs('transactions.index')">
                         {{ __('Transações') }}
                     </x-nav-link>
