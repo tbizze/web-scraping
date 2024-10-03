@@ -43,6 +43,39 @@ class QrCodeController extends Controller
         return view('scraping.index', compact('qr_codes', 'grupos', 'grupo', 'search'));
     }
 
+    // Método para listar os QR Codes quitados no BD.
+    public function baixados(Request $request)
+    {
+        $grupo = $request->input('grupo');
+        $search = $request->input('search');
+
+        $qr_codes = Transaction::query()
+            ->with('qr_code')
+            ->has('qr_code')
+            ->withAggregate('qr_code', 'carne')
+            ->when(
+                $search,
+                function ($query, $value) {
+                    $query->where('ref_transacao', 'like', "%$value%");
+                    $query->orWhere('dt_transacao', 'like', "%$value%");
+                }
+            )
+            // ->when(request('grupo'), function ($q) use ($grupo) {
+            //     return $q->whereHas('grupo', 'like', $grupo);
+            // })
+            ->orderBy('qr_code_carne')
+            ->orderBy('dt_transacao')
+            ->paginate(30);
+
+        $grupos = [
+            ['value' => 100, 'label' => 'Carnês de 100'],
+            ['value' => 50, 'label' => 'Carnês de 50'],
+            ['value' => 30, 'label' => 'Carnês de 30'],
+            ['value' => 20, 'label' => 'Carnês de 20'],
+        ];
+        return view('scraping.baixados', compact('qr_codes', 'grupos', 'grupo', 'search'));
+    }
+
     // Método para varrer transactions e QR Codes, tentando relacioná-los.
     public function makeRelationshipTransactions()
     {
