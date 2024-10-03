@@ -14,9 +14,6 @@ use Maatwebsite\Excel\Facades\Excel;
 
 class TransactionController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index(Request $request)
     {
         $tp_pgto_id = $request->input('tp_pgto_id');
@@ -140,7 +137,7 @@ class TransactionController extends Controller
     {
         // Definir o diretório base com as imagens de QR Code.
         $baseDir = storage_path('app/extratos');
-        $folders = ['2024'];
+        $folders = ['2023', '2024'];
         $imports = [];
         $qdeArquivos = 0;
         $rowsSaved = 0;
