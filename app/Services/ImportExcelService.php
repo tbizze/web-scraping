@@ -91,6 +91,8 @@ class ImportExcelService
     {
         if (Carbon::hasFormat($date, 'd/m/Y H:i')) {
             return Carbon::createFromFormat('d/m/Y H:i', $date)->format('Y-m-d H:i');
+        } elseif (Carbon::hasFormat($date, 'd/m/Y H:i:s')) {
+            return Carbon::createFromFormat('d/m/Y H:i:s', $date)->format('Y-m-d H:i');
         }
         return Date::excelToDateTimeObject($date);
     }

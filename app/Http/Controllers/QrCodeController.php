@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Exports\QrCodeExport;
+use App\Exports\QrCodeQuitadoExport;
 use App\Models\QrCode;
+use App\Models\Transaction;
 use App\Services\ConvertService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
@@ -39,6 +41,121 @@ class QrCodeController extends Controller
         ];
 
         return view('scraping.index', compact('qr_codes', 'grupos', 'grupo', 'search'));
+    }
+
+    // Método para listar os QR Codes quitados no BD.
+    public function listBaixados(Request $request)
+    {
+        $grupo = $request->input('grupo');
+        $search = $request->input('search');
+
+        $qr_codes = Transaction::query()
+            ->with('qr_code')
+            ->has('qr_code')
+            ->withAggregate('qr_code', 'carne')
+            ->when(
+                $search,
+                function ($query, $value) {
+                    $query->where('ref_transacao', 'like', "%$value%");
+                    $query->orWhere('dt_transacao', 'like', "%$value%");
+                }
+            )
+            // ->when(request('grupo'), function ($q) use ($grupo) {
+            //     return $q->whereHas('grupo', 'like', $grupo);
+            // })
+            ->orderBy('qr_code_carne')
+            ->orderBy('dt_transacao')
+            ->paginate(30);
+
+        $grupos = [
+            ['value' => 100, 'label' => 'Carnês de 100'],
+            ['value' => 50, 'label' => 'Carnês de 50'],
+            ['value' => 30, 'label' => 'Carnês de 30'],
+            ['value' => 20, 'label' => 'Carnês de 20'],
+        ];
+        return view('scraping.baixados', compact('qr_codes', 'grupos', 'grupo', 'search'));
+    }
+
+    // Método para listar transações PIX quitados, mas não conseguiu relacionar com QR Codes.
+    public function listBaixadosNotRelation(Request $request)
+    {
+        $grupo = $request->input('grupo');
+        $search = $request->input('search');
+
+        $qr_codes = Transaction::query()
+            ->where('tipo_pgto_id', '=', 1) // 1=Pix.
+            ->where('leitor_id', '=', null) // null = não foi Pix da maquininha.
+            ->doesntHave('qr_code') // Não tem relacionamento com QrCode.
+            ->when(
+                $search,
+                function ($query, $value) {
+                    $query->where('ref_transacao', 'like', "%$value%");
+                    $query->orWhere('dt_transacao', 'like', "%$value%");
+                }
+            )
+            ->orderBy('dt_transacao')
+            ->paginate(30);
+
+        $grupos = [
+            ['value' => 100, 'label' => 'Carnês de 100'],
+            ['value' => 50, 'label' => 'Carnês de 50'],
+            ['value' => 30, 'label' => 'Carnês de 30'],
+            ['value' => 20, 'label' => 'Carnês de 20'],
+        ];
+        return view('scraping.baixados-not-relation', compact('qr_codes', 'grupos', 'grupo', 'search'));
+    }
+
+    // Método para varrer transactions e QR Codes, tentando relacioná-los.
+    public function makeRelationshipTransactions()
+    {
+        // Busca todos os QR Codes salvos no BD.
+        $qr_codes = QrCode::all();
+        $i = 0;
+        $y = 0;
+        $z = 0;
+        $relationship_transactions = [];
+
+        foreach ($qr_codes as $qr_code) {
+            // Busca transações filtrando pelo 'pagseguro_id'.
+            $transactions = Transaction::where('ref_transacao', '=', $qr_code->pagseguro_id)->get();
+
+            // Se existir transação.
+            if ($transactions) {
+
+                foreach ($transactions as $transaction) {
+                    // Monta um objeto juntando dados de QR Code e de Transaction.
+                    $relationship_transactions[] = [
+                        'transaction_id' => $transaction->id,
+                        // 'qr_code_id' => $qr_code->id,
+                        'carne' => $qr_code->carne,
+                        // 'grupo' => $qr_code->grupo,
+                        // 'pagseguro_id' => $qr_code->pagseguro_id,
+                        // 'ref_transacao' => $transaction->ref_transacao,
+                        'dt_transacao' => $transaction->dt_transacao,
+                        // 'valor_bruto' => $transaction->valor_bruto,
+                        // 'valor_liquido' => $transaction->valor_liquido,
+                    ];
+                    $i++;
+
+                    // Verifica se não existe uma relação entre QR Code e Transação.
+                    if (!$transaction->qr_code_id) {
+
+                        // Salvar relacionamento entre QR Code e Transação.
+                        //$transaction->update(['qr_code_id' => $transaction->qr_code_id]);
+                        $transaction->qr_code()->associate($qr_code);
+                        $transaction->save();
+                        $z++;
+                    }
+                    //dd($transaction);
+                }
+            }
+            $y++;
+        }
+        if ($z > 0) {
+            return redirect()->route('comprovantes.baixado')->with('success', "Foram relacionados $z transações com sucesso!");
+        } else {
+            return redirect()->route('comprovantes.baixado')->with('message', "Nenhuma relação entre Transação e QrCode foi encontrada para salvar!");
+        }
     }
 
     // Método para varrer diretórios, obtendo informações dos arquivos de QRCode.
@@ -205,5 +322,14 @@ class QrCodeController extends Controller
     public function export()
     {
         return Excel::download(new QrCodeExport, 'qr-codes.xlsx');
+    }
+
+    // Método para exportar em Excel os comprovantes baixados.
+    public function baixadosExport(Request $request)
+    {
+        //dd('test', $request->all());
+        //return Excel::download(new QrCodeExport, 'qr-codes-baixado.xlsx');
+
+        return (new QrCodeQuitadoExport(2023))->download('qr-codes-baixado.xlsx');
     }
 }

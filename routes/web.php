@@ -41,12 +41,17 @@ Route::middleware([
     Route::get('/comprovantes/convert/{qrCode}', [QrCodeController::class, 'convert'])->name('comprovantes.convert');
     //Route::get('/lsconvert', [QrCodeController::class, 'listaConvert'])->name('ocr.lsconvert');
     Route::get('/comprovantes/export', [QrCodeController::class, 'export'])->name('comprovantes.export');
+    Route::get('/comprovantes/baixado', [QrCodeController::class, 'listBaixados'])->name('comprovantes.baixado');
+    Route::get('/comprovantes/baixado-not-relation', [QrCodeController::class, 'listBaixadosNotRelation'])->name('comprovantes.baixado-not-relation');
+    Route::get('/comprovantes/baixado-export', [QrCodeController::class, 'baixadosExport'])->name('comprovantes.baixado-export');
+    Route::get('/comprovantes/make-relationship', [QrCodeController::class, 'makeRelationshipTransactions'])->name('comprovantes.make-relationship');
 
     // Rotas de transações.
     Route::get('/transactions', [TransactionController::class, 'index'])->name('transactions.index');
     Route::get('/transactions/import', [TransactionController::class, 'import'])->name('transactions.import');
     Route::post('/transactions/import', [TransactionController::class, 'processImport'])->name('transactions.process.import');
     Route::get('/transactions/import-all', [TransactionController::class, 'importAll'])->name('transactions.import-all');
+    Route::get('/transactions/test', [TransactionController::class, 'test'])->name('transactions.test');
 });
 
 Route::post('/image/upload', [ImageController::class, 'upload'])->name('image.upload');
