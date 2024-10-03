@@ -25,8 +25,11 @@
                             </x-biz.link>
 
                         </div>
-                        <div class="">
-                            <form action="{{ route('comprovantes.baixado') }}" method="GET" class="ml-4">
+                        <div class="flex">
+                            <x-biz.link href="{{ route('comprovantes.baixado-not-relation') }}">
+                                Não relacionados
+                            </x-biz.link>
+                            <form action="{{ route('comprovantes.baixado') }}" method="GET" class="ml-2">
                                 <div class="flex flex-wrap gap-2">
                                     @csrf
                                     <div class="">
@@ -72,7 +75,7 @@
                                         {{ $item->qr_code->carne }}
                                     </td>
                                     <td class="px-4 py-2 text-left">
-                                        {{ $item->qr_code->pagseguro_id }}
+                                        {{ $item->ref_transacao }}
                                     </td>
                                     <td class="px-4 py-2 text-center">
                                         {{ $item->dt_compensacao }}
