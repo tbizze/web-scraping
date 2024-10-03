@@ -23,9 +23,6 @@
                             <x-biz.link href="{{ route('comprovantes.export') }}">
                                 Exportar em Excel
                             </x-biz.link>
-                            <x-biz.link href="{{ route('comprovantes.make-relationship') }}">
-                                Buscar relacionamentos
-                            </x-biz.link>
 
                         </div>
                         <div class="">
