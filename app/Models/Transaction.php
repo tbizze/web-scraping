@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Transaction extends Model
 {
@@ -64,5 +65,10 @@ class Transaction extends Model
     public function qr_code(): BelongsTo
     {
         return $this->belongsTo(QrCode::class)->withDefault('N/D');
+    }
+
+    public function pessoas(): BelongsToMany
+    {
+        return $this->belongsToMany(Pessoa::class);
     }
 }
