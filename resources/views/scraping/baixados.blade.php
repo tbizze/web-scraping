@@ -20,6 +20,9 @@
                             <x-biz.link href="{{ route('comprovantes.make-relationship') }}">
                                 Buscar relacionamentos
                             </x-biz.link>
+                            <x-biz.link href="{{ route('comprovantes.baixado-export') }}">
+                                Exportar em Excel
+                            </x-biz.link>
 
                         </div>
                         <div class="">
@@ -63,28 +66,28 @@
                                         {{ $item->id }}
                                     </td>
                                     <td class="px-4 py-2 text-center">
-                                        {{ $item->grupo }}
+                                        {{ $item->qr_code->grupo }}
                                     </td>
                                     <td class="px-4 py-2 text-center">
-                                        {{ $item->carne }}
+                                        {{ $item->qr_code->carne }}
                                     </td>
                                     <td class="px-4 py-2 text-left">
-                                        {{ $item->pagseguro_id }}
+                                        {{ $item->qr_code->pagseguro_id }}
                                     </td>
                                     <td class="px-4 py-2 text-center">
-                                        {{ $item->transaction->dt_compensacao }}
+                                        {{ $item->dt_compensacao }}
                                     </td>
                                     <td class="px-4 py-2 text-right">
-                                        {{ $item->transaction->valor_bruto }}
+                                        {{ $item->valor_bruto }}
                                     </td>
                                     <td class="px-4 py-2 text-right">
-                                        {{ $item->transaction->valor_taxa }}
+                                        {{ $item->valor_taxa }}
                                     </td>
                                     <td class="px-4 py-2 text-right">
-                                        {{ $item->transaction->valor_liquido }}
+                                        {{ $item->valor_liquido }}
                                     </td>
                                     <td class="px-4 py-2 text-center">
-                                        {{ $item->transaction->status->description ? $item->transaction->status->description : 'Em aberto' }}
+                                        {{ $item->status->description ? $item->status->description : 'Em aberto' }}
                                     </td>
                                 </tr>
                             @endforeach
