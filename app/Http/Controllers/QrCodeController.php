@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Exports\QrCodeExport;
+use App\Exports\QrCodeQuitadoExport;
 use App\Models\QrCode;
 use App\Models\Transaction;
 use App\Services\ConvertService;
@@ -42,53 +43,57 @@ class QrCodeController extends Controller
         return view('scraping.index', compact('qr_codes', 'grupos', 'grupo', 'search'));
     }
 
-    public function baixados(Request $request)
-    {
-        $grupo = $request->input('grupo');
-        $search = $request->input('search');
-
-
-        $qr_codes = QrCode::query()
-            ->with('transaction')
-            //->has('transaction')
-            ->paginate(30);
-        //dd($qr_codes);
-
-        $grupos = [
-            ['value' => 100, 'label' => 'Carnês de 100'],
-            ['value' => 50, 'label' => 'Carnês de 50'],
-            ['value' => 30, 'label' => 'Carnês de 30'],
-            ['value' => 20, 'label' => 'Carnês de 20'],
-        ];
-        return view('scraping.baixados', compact('qr_codes', 'grupos', 'grupo', 'search'));
-    }
+    // Método para varrer transactions e QR Codes, tentando relacioná-los.
     public function makeRelationshipTransactions()
     {
         // Busca todos os QR Codes salvos no BD.
         $qr_codes = QrCode::all();
         $i = 0;
+        $y = 0;
+        $z = 0;
+        $relationship_transactions = [];
 
-        foreach ($qr_codes as $item) {
+        foreach ($qr_codes as $qr_code) {
             // Busca transações filtrando pelo 'pagseguro_id'.
-            $transaction = Transaction::where('ref_transacao', $item->pagseguro_id)->first();
+            $transactions = Transaction::where('ref_transacao', '=', $qr_code->pagseguro_id)->get();
 
             // Se existir transação.
-            if ($transaction) {
+            if ($transactions) {
 
-                // Verifica se não existe uma relação entre QR Code e Transação.
-                if (!$item->transaction_id) {
-
-                    // Salvar relacionamento entre QR Code e Transação.
-                    $item->transaction()->associate($transaction);
-                    $item->save();
-                    //$item->update(['transaction_id' => $transaction->id]);
-                    //dd($item->toArray());
+                foreach ($transactions as $transaction) {
+                    // Monta um objeto juntando dados de QR Code e de Transaction.
+                    $relationship_transactions[] = [
+                        'transaction_id' => $transaction->id,
+                        // 'qr_code_id' => $qr_code->id,
+                        'carne' => $qr_code->carne,
+                        // 'grupo' => $qr_code->grupo,
+                        // 'pagseguro_id' => $qr_code->pagseguro_id,
+                        // 'ref_transacao' => $transaction->ref_transacao,
+                        'dt_transacao' => $transaction->dt_transacao,
+                        // 'valor_bruto' => $transaction->valor_bruto,
+                        // 'valor_liquido' => $transaction->valor_liquido,
+                    ];
                     $i++;
+
+                    // Verifica se não existe uma relação entre QR Code e Transação.
+                    if (!$transaction->qr_code_id) {
+
+                        // Salvar relacionamento entre QR Code e Transação.
+                        //$transaction->update(['qr_code_id' => $transaction->qr_code_id]);
+                        $transaction->qr_code()->associate($qr_code);
+                        $transaction->save();
+                        $z++;
+                    }
+                    //dd($transaction);
                 }
             }
+            $y++;
         }
-        //dd($i);
-        return redirect()->route('comprovantes.index')->with('success', "Foram relacionados $i transações com sucesso!");
+        if ($z > 0) {
+            return redirect()->route('comprovantes.baixado')->with('success', "Foram relacionados $z transações com sucesso!");
+        } else {
+            return redirect()->route('comprovantes.baixado')->with('message', "Nenhuma relação entre Transação e QrCode foi encontrada para salvar!");
+        }
     }
 
     // Método para varrer diretórios, obtendo informações dos arquivos de QRCode.
