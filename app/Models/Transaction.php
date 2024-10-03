@@ -25,6 +25,7 @@ class Transaction extends Model
         'parcelas',
         'cod_venda',
         'leitor_id',
+        'qr_code_id',
     ];
 
     protected $casts = [
@@ -59,5 +60,9 @@ class Transaction extends Model
     public function leitor(): BelongsTo
     {
         return $this->belongsTo(Leitor::class)->withDefault('N/D');
+    }
+    public function qr_code(): BelongsTo
+    {
+        return $this->belongsTo(QrCode::class)->withDefault('N/D');
     }
 }
