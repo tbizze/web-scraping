@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('qr_codes', function (Blueprint $table) {
+        Schema::table('transactions', function (Blueprint $table) {
             // Chave estrangeira: Transaction.
-            $table->foreignId('transaction_id')->after('pagseguro_id')->nullable()->constrained()->onDelete('cascade');
+            $table->foreignId('qr_code_id')->after('leitor_id')->nullable()->constrained()->onDelete('cascade');
         });
     }
 
@@ -22,12 +22,12 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('qr_codes', function (Blueprint $table) {
+        Schema::table('transactions', function (Blueprint $table) {
             // Remove a chave estrangeira.
-            $table->dropForeign(['transaction_id']);
+            $table->dropForeign(['qr_code_id']);
 
             // Remove a coluna.
-            $table->dropColumn('transaction_id');
+            $table->dropColumn('qr_code_id');
         });
     }
 };
