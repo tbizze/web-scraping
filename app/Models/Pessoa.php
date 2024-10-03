@@ -5,7 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Pessoa extends Model
 {
@@ -32,8 +32,8 @@ class Pessoa extends Model
         return $this->belongsTo(PessoaStatus::class);
     }
 
-    public function transactions(): BelongsToMany
+    public function qrCodes(): HasMany
     {
-        return $this->belongsToMany(Transaction::class);
+        return $this->hasMany(QrCode::class)->withDefault('N/D');
     }
 }
