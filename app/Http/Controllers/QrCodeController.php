@@ -294,4 +294,13 @@ class QrCodeController extends Controller
     {
         return Excel::download(new QrCodeExport, 'qr-codes.xlsx');
     }
+
+    // Método para exportar em Excel os comprovantes baixados.
+    public function baixadosExport(Request $request)
+    {
+        //dd('test', $request->all());
+        //return Excel::download(new QrCodeExport, 'qr-codes-baixado.xlsx');
+
+        return (new QrCodeQuitadoExport(2023))->download('qr-codes-baixado.xlsx');
+    }
 }
