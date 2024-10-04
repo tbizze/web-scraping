@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\ImageController;
+use App\Http\Controllers\PessoaController;
 use App\Http\Controllers\QrCodeController;
 use App\Http\Controllers\TransactionController;
 use Illuminate\Support\Facades\Route;
@@ -52,6 +53,9 @@ Route::middleware([
     Route::post('/transactions/import', [TransactionController::class, 'processImport'])->name('transactions.process.import');
     Route::get('/transactions/import-all', [TransactionController::class, 'importAll'])->name('transactions.import-all');
     Route::get('/transactions/test', [TransactionController::class, 'test'])->name('transactions.test');
+
+    Route::get('/pessoas/import', [PessoaController::class, 'import'])->name('pessoas.import');
+    Route::post('/pessoas/import', [PessoaController::class, 'processImport'])->name('pessoas.process-import');
 });
 
 Route::post('/image/upload', [ImageController::class, 'upload'])->name('image.upload');
