@@ -85,4 +85,22 @@ class PessoaController extends Controller
 
         return redirect()->back()->with('success', 'Transações importadas com sucesso!');
     }
+
+    public function test()
+    {
+
+        $pessoas_selected = 10;
+
+        // $transactions = Transaction::query()
+        // ->where('status_id', 1) // Apenas transações em aberto
+        // ->get();
+
+        $transactions = Transaction::find(1);
+
+        // Salva as áreas na tabela Pivô
+        if ($pessoas_selected) {
+            $transactions->pessoas()->sync($pessoas_selected);
+        }
+        dd($transactions);
+    }
 }
