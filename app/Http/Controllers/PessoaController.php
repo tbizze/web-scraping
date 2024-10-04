@@ -2,8 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Imports\PessoaImport;
 use App\Models\Pessoa;
+use App\Models\Transaction;
 use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
 
 class PessoaController extends Controller
 {
@@ -61,5 +64,25 @@ class PessoaController extends Controller
     public function destroy(Pessoa $pessoa)
     {
         //
+    }
+
+    // Método para exibir view de importação individual de um arquivo CSV o Excel.
+    public function import()
+    {
+        return view('pessoa.import');
+    }
+
+    // Método para processar importação individual de um arquivo CSV o Excel.
+    public function processImport(Request $request)
+    {
+        $request->validate([
+            //'file' => 'required|mimes:xlsx,xls,csv',
+            'file' => 'required|',
+        ]);
+
+        // Importar dados da planilha e salvar na base de dados.
+        $xz = Excel::import(new PessoaImport, $request->file('file'));
+
+        return redirect()->back()->with('success', 'Transações importadas com sucesso!');
     }
 }
