@@ -17,6 +17,7 @@ class Pessoa extends Model
         'sexo',
         'telefone',
         'pessoa_status_id',
+        'notas'
         // 'cpf',
         // 'rg',
         // 'email',
