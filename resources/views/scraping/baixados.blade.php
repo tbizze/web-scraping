@@ -54,6 +54,7 @@
                                 <th class="py-3">ID</th>
                                 <th class="">Grupo</th>
                                 <th class="">Carnê</th>
+                                <th class="">Nome</th>
                                 <th class="">Id Pagbank</th>
                                 <th class="">Dt. Baixa</th>
                                 <th class="">Bruto</th>
@@ -73,6 +74,9 @@
                                     </td>
                                     <td class="px-4 py-2 text-center">
                                         {{ $item->qr_code->carne }}
+                                    </td>
+                                    <td class="px-4 py-2 text-left">
+                                        {{ $item->qr_code->pessoa->nome }}
                                     </td>
                                     <td class="px-4 py-2 text-left">
                                         {{ $item->ref_transacao }}
