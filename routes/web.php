@@ -56,7 +56,7 @@ Route::middleware([
 
     Route::get('/pessoas/import', [PessoaController::class, 'import'])->name('pessoas.import');
     Route::post('/pessoas/import', [PessoaController::class, 'processImport'])->name('pessoas.process-import');
-    Route::get('/pessoas/test', [PessoaController::class, 'test'])->name('pessoas.test');
+    Route::get('/pessoas/make-relationship', [PessoaController::class, 'makeRelationshipQrCodes'])->name('pessoas.make-relationship');
 });
 
 Route::post('/image/upload', [ImageController::class, 'upload'])->name('image.upload');
