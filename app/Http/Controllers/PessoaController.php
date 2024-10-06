@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Imports\PessoaImport;
 use App\Models\Pessoa;
+use App\Models\QrCode;
 use App\Models\Transaction;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
@@ -86,21 +87,52 @@ class PessoaController extends Controller
         return redirect()->back()->with('success', 'Transações importadas com sucesso!');
     }
 
-    public function test()
+    // Método para varrer Pessoas e QR Codes, tentando relacioná-los.
+    public function makeRelationshipQrCodes()
     {
+        // Busca todos as Pessoas.
+        $pessoas = Pessoa::all();
+        $i = 0;
+        $y = 0;
+        $z = 0;
+        $relationship_qr_codes = [];
 
-        $pessoas_selected = 10;
+        foreach ($pessoas as $pessoa) {
+            // Busca QrCodes filtrando pelo 'carne'.
+            $qr_codes = QrCode::where('carne', '=', $pessoa->notas)->orderBy('carne', 'asc')->get();
 
-        // $transactions = Transaction::query()
-        // ->where('status_id', 1) // Apenas transações em aberto
-        // ->get();
+            // Se existir qr_codes.
+            if ($qr_codes) {
+                foreach ($qr_codes as $qr_code) {
+                    $relationship_qr_codes[] = [
+                        'pessoa_id' => $pessoa->id,
+                        'qr_code_id' => $qr_code->id,
+                        'carne' => $qr_code->carne,
+                        //'grupo' => $qr_code->grupo,
+                        //'pagseguro_id' => $qr_code->pagseguro_id,
+                        'notas' => $pessoa->notas,
+                        //'dt_transacao' => $transaction->dt_transacao,
+                        // 'valor_bruto' => $transaction->valor_bruto,
+                        // 'valor_liquido' => $transaction->valor_liquido,
+                    ];
+                    $i++;
 
-        $transactions = Transaction::find(1);
-
-        // Salva as áreas na tabela Pivô
-        if ($pessoas_selected) {
-            $transactions->pessoas()->sync($pessoas_selected);
+                    // Verifica se não existe uma relação entre Pessoa e QR Code.
+                    if (!$qr_code->pessoa_id) {
+                        // Adiciona a relação entre QR Code e Transação.
+                        $qr_code->pessoa_id = $pessoa->id;
+                        $qr_code->save();
+                        $z++;
+                    }
+                    //dd($qr_code);
+                }
+            }
+            $y++;
         }
-        dd($transactions);
+        if ($z > 0) {
+            return redirect()->route('comprovantes.baixado')->with('success', "Foram relacionados $z pessoas com sucesso!");
+        } else {
+            return redirect()->route('comprovantes.baixado')->with('message', "Nenhuma relação entre Pessoa e QrCode foi encontrada para salvar!");
+        }
     }
 }
