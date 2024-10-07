@@ -23,16 +23,36 @@ class QrCodeQuitadoExport implements FromQuery, WithHeadings
      */
     public function query()
     {
+        // return Transaction::query()
+        //     ->select('id', 'valor_bruto',  'valor_taxa', 'valor_liquido', 'dt_transacao', 'ref_transacao')
+        //     ->with(['qrCode', 'qrCode.pessoa'])
+        //     ->has('qrCode')
+        //     ->withAggregate('qrCode', 'grupo')
+        //     ->withAggregate('qrCode', 'carne')
+        //     ->withAggregate('status', 'description')
+        //     ->orderBy('qr_code_carne')
+        //     ->orderBy('dt_transacao')
+        // ;
+
         return Transaction::query()
-            ->select('id', 'valor_bruto',  'valor_taxa', 'valor_liquido', 'dt_transacao', 'ref_transacao')
-            ->with('qr_code')
-            ->has('qr_code')
-            ->withAggregate('qr_code', 'grupo')
-            ->withAggregate('qr_code', 'carne')
-            ->withAggregate('status', 'description')
-            ->orderBy('qr_code_carne')
-            ->orderBy('dt_transacao')
-        ;
+            ->select(
+                'transactions.id',
+                'valor_bruto',
+                'valor_taxa',
+                'valor_liquido',
+                'dt_transacao',
+                'qr_codes.grupo',
+                'qr_codes.carne',
+                'pessoas.nome',
+                'ref_transacao',
+                'statuses.description',
+            )
+            ->with(['qrCode', 'qrCode.pessoa'])
+            ->leftJoin('statuses', 'statuses.id', '=', 'transactions.status_id')
+            ->join('qr_codes', 'qr_codes.id', '=', 'transactions.qr_code_id')
+            ->leftJoin('pessoas', 'pessoas.id', '=', 'qr_codes.pessoa_id')
+            ->orderBy('qr_codes.carne')
+            ->orderBy('dt_transacao');
     }
 
     public function headings(): array
@@ -43,9 +63,10 @@ class QrCodeQuitadoExport implements FromQuery, WithHeadings
             'Taxa',
             'Líquido',
             'Dt. Transação',
-            'Referência',
             'Grupo',
             'Nº Carnê',
+            'Nome',
+            'Referência',
             'Status',
         ];
     }
