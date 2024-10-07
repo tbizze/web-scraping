@@ -14,9 +14,36 @@ class PessoaController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $grupo = $request->input('grupo');
+        $search = $request->input('search');
+
+        $pessoas = Pessoa::query()
+            //->with('qr_code')
+            //->has('qr_code')
+            //->withAggregate('qr_code', 'carne')
+            ->when(
+                $search,
+                function ($query, $value) {
+                    $query->where('ref_transacao', 'like', "%$value%");
+                    $query->orWhere('dt_transacao', 'like', "%$value%");
+                }
+            )
+            // ->when(request('grupo'), function ($q) use ($grupo) {
+            //     return $q->whereHas('grupo', 'like', $grupo);
+            // })
+            ->orderBy('nome')
+            ->orderBy('notas')
+            ->paginate(30);
+
+        $grupos = [
+            ['value' => 100, 'label' => 'Carnês de 100'],
+            ['value' => 50, 'label' => 'Carnês de 50'],
+            ['value' => 30, 'label' => 'Carnês de 30'],
+            ['value' => 20, 'label' => 'Carnês de 20'],
+        ];
+        return view('pessoa.index', compact('pessoas', 'grupos', 'grupo', 'search'));
     }
 
     /**
@@ -130,9 +157,42 @@ class PessoaController extends Controller
             $y++;
         }
         if ($z > 0) {
-            return redirect()->route('comprovantes.baixado')->with('success', "Foram relacionados $z pessoas com sucesso!");
+            return redirect()->route('pessoas.index')->with('success', "Foram relacionados $z pessoas com sucesso!");
         } else {
-            return redirect()->route('comprovantes.baixado')->with('message', "Nenhuma relação entre Pessoa e QrCode foi encontrada para salvar!");
+            return redirect()->route('pessoas.index')->with('message', "Nenhuma relação entre Pessoa e QrCode foi encontrada para salvar!");
+        }
+    }
+
+    // Método para varrer Pessoas e corrigir o código do carnê formatando
+    public function correctCarne()
+    {
+        // Busca todos as Pessoas.
+        $pessoas = Pessoa::all();
+        $i = 0;
+        $y = 0;
+
+        $carnes = [];
+
+        foreach ($pessoas as $pessoa) {
+            // Se o código do carnê não está formatado.
+            if (strlen($pessoa->notas) < 3) {
+                $carnes[] = [
+                    'notas' => $pessoa->notas,
+                    'carne_correct' => str_pad($pessoa->notas, 3, '0', STR_PAD_LEFT),
+                ];
+
+                // Adiciona zeros à esquerda do código do carnê.
+                $pessoa->notas = str_pad($pessoa->notas, 3, '0', STR_PAD_LEFT);
+                //$pessoa->save();
+                $i++;
+            }
+            $y++;
+        }
+        dd($i, $y, $carnes);
+        if ($i > 0) {
+            return redirect()->route('pessoas.index')->with('success', "Foram corrigidos $i códigos de carnê com sucesso!");
+        } else {
+            return redirect()->route('pessoas.index')->with('success', "Foram corrigidos $i códigos de carnê com sucesso!");
         }
     }
 }
