@@ -70,13 +70,13 @@
                                         {{ $item->id }}
                                     </td>
                                     <td class="px-4 py-2 text-center">
-                                        {{ $item->qr_code->grupo }}
+                                        {{ $item->qrCode->grupo }}
                                     </td>
                                     <td class="px-4 py-2 text-center">
-                                        {{ $item->qr_code->carne }}
+                                        {{ $item->qrCode->carne }}
                                     </td>
                                     <td class="px-4 py-2 text-left">
-                                        {{ $item->qr_code->pessoa->nome }}
+                                        {{ $item->qrCode->pessoa->nome }}
                                     </td>
                                     <td class="px-4 py-2 text-left">
                                         {{ $item->ref_transacao }}
