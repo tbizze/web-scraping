@@ -50,9 +50,9 @@ class QrCodeController extends Controller
         $search = $request->input('search');
 
         $qr_codes = Transaction::query()
-            ->with('qr_code')
-            ->has('qr_code')
-            ->withAggregate('qr_code', 'carne')
+            ->with('qrCode')
+            ->has('qrCode')
+            ->withAggregate('qrCode', 'carne')
             ->when(
                 $search,
                 function ($query, $value) {
@@ -327,9 +327,8 @@ class QrCodeController extends Controller
     // Método para exportar em Excel os comprovantes baixados.
     public function baixadosExport(Request $request)
     {
-        //dd('test', $request->all());
-        //return Excel::download(new QrCodeExport, 'qr-codes-baixado.xlsx');
+        $date = now()->format('Ymd-His');
 
-        return (new QrCodeQuitadoExport(2023))->download('qr-codes-baixado.xlsx');
+        return (new QrCodeQuitadoExport(2023))->download('Pgtos-QrCode ' . $date . '.xlsx');
     }
 }
