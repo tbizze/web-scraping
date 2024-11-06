@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Exports\PessoaExport;
 use App\Imports\PessoaImport;
 use App\Models\Pessoa;
 use App\Models\QrCode;
@@ -44,6 +45,11 @@ class PessoaController extends Controller
             ['value' => 20, 'label' => 'Carnês de 20'],
         ];
         return view('pessoa.index', compact('pessoas', 'grupos', 'grupo', 'search'));
+    }
+
+    public function export()
+    {
+        return Excel::download(new PessoaExport(), 'pessoas.xlsx');
     }
 
     /**
