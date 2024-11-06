@@ -59,6 +59,7 @@ Route::middleware([
     Route::get('/pessoas/make-relationship', [PessoaController::class, 'makeRelationshipQrCodes'])->name('pessoas.make-relationship');
     Route::get('/pessoas/index', [PessoaController::class, 'index'])->name('pessoas.index');
     Route::get('/pessoas/correct-carne', [PessoaController::class, 'correctCarne'])->name('pessoas.correct-carne');
+    Route::get('/pessoas/export', [PessoaController::class, 'export'])->name('pessoas.export');
 });
 
 Route::post('/image/upload', [ImageController::class, 'upload'])->name('image.upload');
