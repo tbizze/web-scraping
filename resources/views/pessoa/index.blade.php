@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 dark:text-gray-200 leading-tight">
-            {{ __('Listar QR Codes') }}
+            {{ __('Listar Pessoas') }}
         </h2>
     </x-slot>
 
@@ -20,7 +20,7 @@
                             <x-biz.link href="{{ route('pessoas.make-relationship') }}">
                                 Buscar relacionamentos
                             </x-biz.link>
-                            <x-biz.link href="{{ route('comprovantes.baixado-export') }}">
+                            <x-biz.link href="{{ route('pessoas.export') }}">
                                 Exportar em Excel
                             </x-biz.link>
 
